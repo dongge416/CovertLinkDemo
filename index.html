@@ -70,8 +70,9 @@ function testSubmit(content) {
 
 		success: function(data) {
 			//获得服务器响应
+			console.log("获取服务器数据";)
 			console.log(data);
-			//alert(data);
+			alert(data);
 		},
 		error: function(xhr, type, errorThrown) {
 			//异常处理；
