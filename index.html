@@ -5,6 +5,8 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
 		<title></title>
+		<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery
+/jquery-1.4.min.js"></script>
 		<script src="js/mui.min.js"></script>
 		<link href="css/mui.min.css" rel="stylesheet" />
 		<script type="text/javascript" charset="utf-8">
@@ -13,74 +15,108 @@
 	</head>
 
 	<body>
-		<header class="mui-bar mui-bar-nav">
-			<a class="mui-action-back"></a>
-			<h1 class="mui-title">查询页面</h1>
-		</header>
-		<div id="query_div"  style="display: none;">
+
+		<div id="query_div" style="display: inline;">
+			<header class="mui-bar mui-bar-nav">
+				<a class="mui-action-back"></a>
+				<h1 class="mui-title">查询页面</h1>
+			</header>
 			<div class="mui-input-row" style="margin-top: 80px;margin-left: 10px;margin-right: 10px;">
 				<textarea id="link_textarea" rows="5" placeholder="输入你要查询的匋宝链接"></textarea>
 			</div>
 			<div align="center">
-				<button id="query_btn" class="mui-btn mui-btn-primary mui-icon mui-icon-search mui-right">
+				<button id="query_btn" data-loading-text="查询中" class="mui-btn mui-btn-primary mui-icon mui-icon-search mui-right">
 		            查询优惠
 		    </button>
 				<button type="button" class="mui-btn mui-btn-danger mui-btn-outlined mui-icon mui-icon-trash mui-right">
 		            清空文字
 		    </button>
 			</div>
-			<div>
-				<button id="test_submit" type="submit" class="mui-btn mui-btn-primary">提交</button>
-			</div>
+
 		</div>
-		<div id="result_div">
+		<div id="result_div" style="display: none;">
 			<header class="mui-bar mui-bar-nav">
-			<h1 class="mui-title">优惠信息</h1>
-			<button id="btn_back" class="mui-btn mui-btn-blue mui-btn-link mui-btn-nav mui-pull-left">
+				<h1 class="mui-title">优惠信息</h1>
+				<button id="btn_back" class="mui-btn mui-btn-blue mui-btn-link mui-btn-nav mui-pull-left">
 				<span class="mui-icon mui-icon-left-nav">	
 				</span>
 				返回
 			</button>
 			</header>
+			<div id="result_content" style="margin-top: 80px;">
+				<div id="product_content" style="margin-left: 20px;margin-right: 20px;">
+					<p id="p_title"></p>
+					<p id="p_discount_price"></p>
+					<p id="p_couponmoney"></p>
+					<p id="p_rebate_money"></p>
+				</div>
+				<div align="center">
+					<button id="btn_copy" class="mui-btn mui-btn-primary" style="margin-top: 30px;">一键复制</button>
+				</div>
+			</div>
+
 		</div>
 	</body>
 	<script>
 		mui(document.body).on('tap', '#query_btn', function() {
-			var link_textarea = document.getElementById("link_textarea").value;
-			console.log(link_textarea);
-			var keywords = separateKeywords(link_textarea);
-			console.log("keywords:" + keywords);
-			analysisKeywords(keywords);
-
-		})
-		mui(document.body).on('tap', '#test_submit', function() {
 			var content = document.getElementById("link_textarea").value;
 
 			testSubmit(content);
+
 		})
+
 		mui(document.body).on('tap', '#btn_back', function() {
 			console.log('点击返回');
+			myBackEvnet();
 		})
 
-		function separateKeywords(content) {
-			var result;
-			if(content.indexOf("€") != -1) {
-				var firstIndex = content.indexOf("€");
-				var secondIndex = content.lastIndexOf("€");
-				result = content.substring(firstIndex, secondIndex + 1);
+		mui(document.body).on('tap', '#btn_copy', function() {
+			alert('复制成功');
+			myCopy();
+			
+		})
 
-				console.log(result);
-			} else if(content.indexOf("￥") != -1) {
-				var firstIndex = content.indexOf("￥");
-				var secondIndex = content.lastIndexOf("￥");
-				result = content.substring(firstIndex, secondIndex + 1);
-				console.log(result);
-			}
-			return result;
+		function myBackEvnet() {
+			document.getElementById("query_div").style.display = "inline";
+			document.getElementById("result_div").style.display = "none";
+			//			$("#query_div").show(1500);
+			//			$("#result_div").hide(1500);
+		}
+
+		function setResultVisible() {
+			document.getElementById("query_div").style.display = "none";
+			document.getElementById("result_div").style.display = "inline";
+			//			$("#query_div").hide(1500);
+			//			$("#result_div").show(1500);
+		}
+
+		function fillProductInfo(data) {
+			var title = "标题:" + data.data['title'][0];
+			var discount_price = "付费价:" + data.data['discount_price'];
+			var couponmoney = "优惠劵:" + data.data['couponmoney'];
+			var rebate_money = "约反:" + data.data['rebate_money'];
+			document.getElementById("p_title").innerHTML = title;
+			document.getElementById("p_discount_price").innerHTML = discount_price;
+			document.getElementById("p_couponmoney").innerHTML = couponmoney;
+			document.getElementById("p_rebate_money").innerHTML = rebate_money;
+		}
+
+		function myCopy() {
+			var UIPasteboard = plus.ios.importClass("UIPasteboard");
+			var generalPasteboard = UIPasteboard.generalPasteboard();
+			//设置/获取文本内容:
+			generalPasteboard.plusCallMethod({
+				setValue: '0000000000000000',
+				forPasteboardType: "public.utf8-plain-text"
+			});
+			generalPasteboard.plusCallMethod({
+				valueForPasteboardType: "public.utf8-plain-text"
+			});
 		}
 
 		function testSubmit(content) {
-			mui.ajax('http://localhost/phpworkspace/tbksdk/ConverAction.php', {
+			mui('#query_btn').button('loading');
+			mui.ajax('http://192.168.0.107/phpworkspace/tbksdk/ConverAction.php', {
 				data: {
 					content: content
 				},
@@ -91,32 +127,18 @@
 					//获得服务器响应
 					console.log("获取服务器数据");
 
-					var title = data.data['title'][0];
-					mui.alert('优惠信息', title, function() {
-						console.log('关闭了警告框');
-					}, 'DIV');
+					//var title = data.data['title'][0];
+					mui('#query_btn').button('reset');
+					fillProductInfo(data);
+					setResultVisible();
+
 				},
 				error: function(xhr, type, errorThrown) {
 					//异常处理；
 					console.log(type);
+					mui('#query_btn').button('reset');
 				}
 			});
-		}
-
-		function analysisKeywords(keywords) {
-			//			TopClient = require('./topClient').TopClient;
-			//			var client = new TopClient({
-			//				'appkey': '24333767',
-			//				'appsecret': '8b5750f690730e4a2938b409329b0a3e',
-			//				'REST_URL': 'http://gw.api.taobao.com/router/rest'
-			//			});
-			//
-			//			client.execute('taobao.wireless.share.tpwd.query', {
-			//				'password_content': '€emOWbeTTHU0€ ，打开【'
-			//			}, function(error, response) {
-			//				if(!error) console.log(response);
-			//				else console.log(error);
-			//			})
 		}
 	</script>
 
