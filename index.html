@@ -22,7 +22,7 @@
 				<h1 class="mui-title">查询页面</h1>
 			</header>
 			<div class="mui-input-row" style="margin-top: 80px;margin-left: 10px;margin-right: 10px;">
-				<textarea id="link_textarea" rows="5" placeholder="输入你要查询的匋宝链接"></textarea>
+				<textarea id="link_textarea" rows="5" placeholder="输入你要查询的匋宝链接">描述￥QNTfb41jVuE￥后</textarea>
 			</div>
 			<div align="center">
 				<button id="query_btn" data-loading-text="查询中" class="mui-btn mui-btn-primary mui-icon mui-icon-search mui-right">
@@ -45,101 +45,117 @@
 			</header>
 			<div id="result_content" style="margin-top: 80px;">
 				<div id="product_content" style="margin-left: 20px;margin-right: 20px;">
-					<p id="p_title"></p>
-					<p id="p_discount_price"></p>
-					<p id="p_couponmoney"></p>
-					<p id="p_rebate_money"></p>
+					<p id="p_title">666</p>
+					<p id="p_discount_price">666</p>
+					<p id="p_couponmoney">666</p>
+					<p id="p_rebate_money">666</p>
+				</div>
+				<div>
+					<fieldset style="margin: 20px;">
+						<p id="p_keyword_text">复制框内整段文字，打开「手.匋」即可「领取优惠卷」并购买<span id="keyword"></span></p>
+						
+					</fieldset>
 				</div>
 				<div align="center">
-					<button id="btn_copy" class="mui-btn mui-btn-primary" style="margin-top: 30px;">一键复制</button>
+					<button id="btn_copy" class="mui-badge mui-badge-success" data-clipboard-text="999" style="margin-top: 30px;">一键复制</button>
 				</div>
 			</div>
 
 		</div>
-	</body>
-	<script>
-		mui(document.body).on('tap', '#query_btn', function() {
-			var content = document.getElementById("link_textarea").value;
 
-			testSubmit(content);
+		<script>
+			mui(document.body).on('tap', '#query_btn', function() {
+				var content = document.getElementById("link_textarea").value;
 
-		})
+				testSubmit(content);
 
-		mui(document.body).on('tap', '#btn_back', function() {
-			console.log('点击返回');
-			myBackEvnet();
-		})
+			})
 
-		mui(document.body).on('tap', '#btn_copy', function() {
-			alert('复制成功');
-			myCopy();
+			mui(document.body).on('tap', '#btn_back', function() {
+				console.log('点击返回');
+				myBackEvnet();
+			})
+
+		
+
+			function myBackEvnet() {
+				document.getElementById("query_div").style.display = "inline";
+				document.getElementById("result_div").style.display = "none";
+				//			$("#query_div").show(1500);
+				//			$("#result_div").hide(1500);
+			}
+
+			function setResultVisible() {
+				document.getElementById("query_div").style.display = "none";
+				document.getElementById("result_div").style.display = "inline";
+				//			$("#query_div").hide(1500);
+				//			$("#result_div").show(1500);
+			}
+
+			function fillProductInfo(data) {
+				var title = "标题:" + data.data['title'][0];
+				var discount_price = "付费价:" + data.data['discount_price'];
+				var couponmoney = "优惠劵:" + data.data['couponmoney'];
+				var rebate_money = "约反:" + data.data['rebate_money'];
+				var send_taoword = data.data['send_taoword'][0];
+				document.getElementById("p_title").innerHTML = title;
+				document.getElementById("p_discount_price").innerHTML = discount_price;
+				document.getElementById("p_couponmoney").innerHTML = couponmoney;
+				document.getElementById("p_rebate_money").innerHTML = rebate_money;
+				document.getElementById("keyword").innerHTML = send_taoword;
+			}
 			
-		})
+			function setCopyData(){
+				var copyData = document.getElementById("p_keyword_text").innerText;
+				console.log('========');
+				console.log(copyData);
+				document.getElementById("btn_copy").setAttribute("data-clipboard-text",copyData);
+			}
 
-		function myBackEvnet() {
-			document.getElementById("query_div").style.display = "inline";
-			document.getElementById("result_div").style.display = "none";
-			//			$("#query_div").show(1500);
-			//			$("#result_div").hide(1500);
-		}
+			function testSubmit(content) {
+				mui('#query_btn').button('loading');
+				mui.ajax('http://192.168.0.107/phpworkspace/tbksdk/ConverAction.php', {
+					data: {
+						content: content
+					},
+					dataType: 'json', //服务器返回json格式数据
+					type: 'get', //HTTP请求类型
 
-		function setResultVisible() {
-			document.getElementById("query_div").style.display = "none";
-			document.getElementById("result_div").style.display = "inline";
-			//			$("#query_div").hide(1500);
-			//			$("#result_div").show(1500);
-		}
+					success: function(data) {
+						//获得服务器响应
+						console.log("获取服务器数据");
 
-		function fillProductInfo(data) {
-			var title = "标题:" + data.data['title'][0];
-			var discount_price = "付费价:" + data.data['discount_price'];
-			var couponmoney = "优惠劵:" + data.data['couponmoney'];
-			var rebate_money = "约反:" + data.data['rebate_money'];
-			document.getElementById("p_title").innerHTML = title;
-			document.getElementById("p_discount_price").innerHTML = discount_price;
-			document.getElementById("p_couponmoney").innerHTML = couponmoney;
-			document.getElementById("p_rebate_money").innerHTML = rebate_money;
-		}
+						//var title = data.data['title'][0];
+						mui('#query_btn').button('reset');
+						fillProductInfo(data);
+						setResultVisible();
+						setCopyData();
 
-		function myCopy() {
-			var UIPasteboard = plus.ios.importClass("UIPasteboard");
-			var generalPasteboard = UIPasteboard.generalPasteboard();
-			//设置/获取文本内容:
-			generalPasteboard.plusCallMethod({
-				setValue: '0000000000000000',
-				forPasteboardType: "public.utf8-plain-text"
+					},
+					error: function(xhr, type, errorThrown) {
+						//异常处理；
+						console.log(errorThrown);
+						mui('#query_btn').button('reset');
+					}
+				});
+			}
+		</script>
+
+		<script src="js/clipboard.min.js"></script>
+		<script>
+			var btnCopy = document.getElementById("btn_copy");
+			var clipboard = new ClipboardJS(btnCopy);
+			clipboard.on('success', function(e) {
+				console.log(e);
 			});
-			generalPasteboard.plusCallMethod({
-				valueForPasteboardType: "public.utf8-plain-text"
+			
+			clipboard.on('error', function(e) {
+				console.log(e);
 			});
-		}
-
-		function testSubmit(content) {
-			mui('#query_btn').button('loading');
-			mui.ajax('http://192.168.0.107/phpworkspace/tbksdk/ConverAction.php', {
-				data: {
-					content: content
-				},
-				dataType: 'json', //服务器返回json格式数据
-				type: 'get', //HTTP请求类型
-
-				success: function(data) {
-					//获得服务器响应
-					console.log("获取服务器数据");
-
-					//var title = data.data['title'][0];
-					mui('#query_btn').button('reset');
-					fillProductInfo(data);
-					setResultVisible();
-
-				},
-				error: function(xhr, type, errorThrown) {
-					//异常处理；
-					console.log(type);
-					mui('#query_btn').button('reset');
-				}
-			});
-		}
-	</script>
+		</script>
+		
+		
+		
+	</body>
 
 </html>
