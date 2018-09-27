@@ -14,9 +14,9 @@
 		</script>
 	</head>
 
-	<body>
+	<body style="background: white;">
 
-		<div id="query_div" style="display: none;">
+		<div id="query_div" style="display: inline;">
 			<header class="mui-bar mui-bar-nav">
 				<a class="mui-action-back"></a>
 				<h1 class="mui-title">查询页面</h1>
@@ -28,13 +28,13 @@
 				<button id="query_btn" data-loading-text="查询中" class="mui-btn mui-btn-primary mui-icon mui-icon-search mui-right">
 		            查询优惠
 		    </button>
-				<button type="button" class="mui-btn mui-btn-danger mui-btn-outlined mui-icon mui-icon-trash mui-right">
+				<button id="clear_btn" class="mui-btn mui-btn-danger mui-btn-outlined mui-icon mui-icon-trash mui-right">
 		            清空文字
 		    </button>
 			</div>
 
 		</div>
-		<div id="result_div" style="display: inline;">
+		<div id="result_div" style="display: none;">
 			<header class="mui-bar mui-bar-nav">
 				<h1 class="mui-title">优惠信息</h1>
 				<button id="btn_back" class="mui-btn mui-btn-blue mui-btn-link mui-btn-nav mui-pull-left">
@@ -52,8 +52,8 @@
 				</div>
 				<div>
 					<fieldset style="margin: 20px;">
-						<p id="p_keyword_text">复制框内整段文字，打开「手.匋」即可「领取优惠卷」并购买<span id="keyword"></span></p>
-						
+						<p id="p_keyword_text"  style="-webkit-user-select: auto;">复制框内整段文字，打开「手.匋」即可「领取优惠卷」并购买<span id="keyword"></span></p>
+
 					</fieldset>
 				</div>
 				<div align="center" style="margin: 20px;">
@@ -66,9 +66,18 @@
 		<script>
 			mui(document.body).on('tap', '#query_btn', function() {
 				var content = document.getElementById("link_textarea").value;
+				if(checkIsEmpty(content)){
+					mui.toast('查询内容不能为空!')
+				}else{//不为空
+					testSubmit(content);
+				}
+				
 
-				testSubmit(content);
-
+			})
+			
+			mui(document.body).on('tap','#clear_btn',function(){
+				document.getElementById("link_textarea").value = "";
+				console.log('清空文字');
 			})
 
 			mui(document.body).on('tap', '#btn_back', function() {
@@ -76,7 +85,14 @@
 				myBackEvnet();
 			})
 
-		
+
+			function checkIsEmpty(text){
+				if(typeof text == "undefined" || text == null || text == ""){
+					return true;
+				}else{
+					return false;
+				}
+			}
 
 			function myBackEvnet() {
 				document.getElementById("query_div").style.display = "inline";
@@ -104,30 +120,39 @@
 				document.getElementById("p_rebate_money").innerHTML = rebate_money;
 				document.getElementById("keyword").innerHTML = send_taoword;
 			}
-			
-			function setCopyData(){
+
+			function setCopyData() {
 				var copyData = document.getElementById("p_keyword_text").innerText;
 				console.log('========');
 				console.log(copyData);
-				document.getElementById("btn_copy").setAttribute("data-clipboard-text",copyData);
+				document.getElementById("btn_copy").setAttribute("data-clipboard-text", copyData);
 			}
-			
-			function btnCopySuccessState(){
+
+			function btnCopySuccessState() {
 				var btn = document.getElementById("btn_copy");
-				btn.setAttribute("class","mui-btn mui-btn-success mui-btn-block");
+				btn.setAttribute("class", "mui-btn mui-btn-success mui-btn-block");
 				btn.innerText = "复制成功,请打开匋宝直接付款";
 			}
-			
-			function btnCopyErrorState(){
+
+			function btnCopyErrorState() {
 				var btn = document.getElementById("btn_copy");
-				btn.setAttribute("class","mui-btn mui-btn-danger mui-btn-block");
+				btn.setAttribute("class", "mui-btn mui-btn-danger mui-btn-block");
 				btn.innerText = "复制失败,请长按框框内口令手动复制";
 			}
-			
-			function btnPrimaryState(){
+
+			function btnPrimaryState() {
 				var btn = document.getElementById("btn_copy");
-				btn.setAttribute("class","mui-btn mui-btn-primary mui-btn-block");
+				btn.setAttribute("class", "mui-btn mui-btn-primary mui-btn-block");
 				btn.innerText = "一键复制";
+			}
+			
+			function selectState(){
+				var word = document.querySelector("#p_keyword_text");
+				document.addEventListener("selectionchange",
+					function(e) {
+						window.getSelection().selectAllChildren(word);
+					},
+					false);
 			}
 
 			function testSubmit(content) {
@@ -142,17 +167,21 @@
 					success: function(data) {
 						//获得服务器响应
 						console.log("获取服务器数据");
+						console.log(data);
 
-						//var title = data.data['title'][0];
+						
 						mui('#query_btn').button('reset');
 						fillProductInfo(data);
+						setCopyData();
 						setResultVisible();
-						
 
 					},
 					error: function(xhr, type, errorThrown) {
 						//异常处理；
+						mui.toast('查询失败');
 						console.log(errorThrown);
+						console.log(type);
+						console.log(xhr);
 						mui('#query_btn').button('reset');
 					}
 				});
@@ -165,21 +194,24 @@
 			var clipboard = new ClipboardJS(btnCopy);
 			clipboard.on('success', function(e) {
 				console.log(e);
-				setCopyData();
+				
 				btnCopySuccessState();
-				setTimeout(function(){
+				
+				
+				setTimeout(function() {
 					btnPrimaryState();
-				},3000);
+				}, 3000);
 			});
-			
+
 			clipboard.on('error', function(e) {
 				console.log(e);
 				btnCopyErrorState();
+				selectState();
 			});
 		</script>
-		
-		
-		
+
+	
+
 	</body>
 
 </html>
