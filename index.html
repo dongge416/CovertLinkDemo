@@ -16,7 +16,7 @@
 
 	<body>
 
-		<div id="query_div" style="display: inline;">
+		<div id="query_div" style="display: none;">
 			<header class="mui-bar mui-bar-nav">
 				<a class="mui-action-back"></a>
 				<h1 class="mui-title">查询页面</h1>
@@ -34,7 +34,7 @@
 			</div>
 
 		</div>
-		<div id="result_div" style="display: none;">
+		<div id="result_div" style="display: inline;">
 			<header class="mui-bar mui-bar-nav">
 				<h1 class="mui-title">优惠信息</h1>
 				<button id="btn_back" class="mui-btn mui-btn-blue mui-btn-link mui-btn-nav mui-pull-left">
@@ -56,8 +56,8 @@
 						
 					</fieldset>
 				</div>
-				<div align="center">
-					<button id="btn_copy" class="mui-badge mui-badge-success" data-clipboard-text="999" style="margin-top: 30px;">一键复制</button>
+				<div align="center" style="margin: 20px;">
+					<button id="btn_copy" class="mui-btn mui-btn-primary mui-btn-block" data-clipboard-text="999">一键复制</button>
 				</div>
 			</div>
 
@@ -111,6 +111,24 @@
 				console.log(copyData);
 				document.getElementById("btn_copy").setAttribute("data-clipboard-text",copyData);
 			}
+			
+			function btnCopySuccessState(){
+				var btn = document.getElementById("btn_copy");
+				btn.setAttribute("class","mui-btn mui-btn-success mui-btn-block");
+				btn.innerText = "复制成功,请打开匋宝直接付款";
+			}
+			
+			function btnCopyErrorState(){
+				var btn = document.getElementById("btn_copy");
+				btn.setAttribute("class","mui-btn mui-btn-danger mui-btn-block");
+				btn.innerText = "复制失败,请长按框框内口令手动复制";
+			}
+			
+			function btnPrimaryState(){
+				var btn = document.getElementById("btn_copy");
+				btn.setAttribute("class","mui-btn mui-btn-primary mui-btn-block");
+				btn.innerText = "一键复制";
+			}
 
 			function testSubmit(content) {
 				mui('#query_btn').button('loading');
@@ -129,7 +147,7 @@
 						mui('#query_btn').button('reset');
 						fillProductInfo(data);
 						setResultVisible();
-						setCopyData();
+						
 
 					},
 					error: function(xhr, type, errorThrown) {
@@ -147,10 +165,16 @@
 			var clipboard = new ClipboardJS(btnCopy);
 			clipboard.on('success', function(e) {
 				console.log(e);
+				setCopyData();
+				btnCopySuccessState();
+				setTimeout(function(){
+					btnPrimaryState();
+				},3000);
 			});
 			
 			clipboard.on('error', function(e) {
 				console.log(e);
+				btnCopyErrorState();
 			});
 		</script>
 		
