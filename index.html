@@ -97,15 +97,13 @@
 			function myBackEvnet() {
 				document.getElementById("query_div").style.display = "inline";
 				document.getElementById("result_div").style.display = "none";
-				//			$("#query_div").show(1500);
-				//			$("#result_div").hide(1500);
+			
 			}
 
 			function setResultVisible() {
 				document.getElementById("query_div").style.display = "none";
 				document.getElementById("result_div").style.display = "inline";
-				//			$("#query_div").hide(1500);
-				//			$("#result_div").show(1500);
+			
 			}
 
 			function fillProductInfo(data) {
@@ -157,7 +155,7 @@
 
 			function testSubmit(content) {
 				mui('#query_btn').button('loading');
-				mui.ajax('http://192.168.0.107/phpworkspace/tbksdk/ConverAction.php', {
+				mui.ajax('http://192.168.0.104/phpworkspace/tbksdk/ConverAction.php', {
 					data: {
 						content: content
 					},
@@ -168,17 +166,25 @@
 						//获得服务器响应
 						console.log("获取服务器数据");
 						console.log(data);
-
-						
 						mui('#query_btn').button('reset');
-						fillProductInfo(data);
-						setCopyData();
-						setResultVisible();
+						var code = data['code'];
+						if(code == 0){
+							var errorContent = data['data'];
+							mui.alert(errorContent,'温馨提示','确认');
+							
+						}else{//成功
+							fillProductInfo(data);
+							setCopyData();
+							setResultVisible();
+						}
+						
+						
+						
 
 					},
 					error: function(xhr, type, errorThrown) {
 						//异常处理；
-						mui.toast('查询失败');
+						mui.alert('抱歉！这个链接没有任何优惠和反利,请换一个宝贝再试','温馨提示','确认');
 						console.log(errorThrown);
 						console.log(type);
 						console.log(xhr);
