@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+	</head>
+
+	<body>
+	</body>
+	<script>
+		function getParams(paras) {
+			var url = decodeURI(location.href);
+			// var url = location.href;
+			var paraString = url.substring(url.indexOf("?") + 1, url.length).split("&");
+			var returnValue;
+			for(i = 0; i < paraString.length; i++) {
+				var tempParas = paraString[i].split('=')[0];
+				var parasValue = paraString[i].split('=')[1];
+				if(tempParas === paras)
+					returnValue = parasValue;
+			}
+			if(typeof(returnValue) == "undefined") {
+				return "";
+			} else {
+				return returnValue;
+			}
+		}
+		
+		var key_code = getParams("keyword");
+		var en_key_code = escape(key_code);
+		console.log(en_key_code);
+		var de_key_code = unescape(en_key_code);
+		console.log(de_key_code);
+		
+	</script>
+
+</html>
